@@ -12,9 +12,6 @@ library(mvtnorm)
 library(purrr)
 #'@import pracma
 library(pracma)
-library(Rsolnp)
-library(matrixcalc)
-library(psych)
 
 #'Computes the value of the integral for a plateau on the integrand function
 #'surface. Plateau is specified by the values of the target distribution value
@@ -266,8 +263,8 @@ is_stationary <- function(alpha){
 #'   process is not stationary.
 #' @export
 #' @seealso \code{\link{generate_DARTA}}
-generate_nbinomial <- function(n, size, prob, rho, epsilon = 0.001, precision = 0.00001){
-  return(generate_DARTA(n= n, rho = rho, distribution_name = "nbinomial", param1 = size, param2=prob,epsilon = epsilon, precision = precision))
+generate_nbinomial <- function(n, size, prob, rho, epsilon = 0.001, precision = 0.00001, method = "interpol" ){
+  return(generate_DARTA(n= n, rho = rho, distribution_name = "nbinomial", param1 = size, param2=prob,epsilon = epsilon, precision = precision, method = method))
 }
 
 #' Generate autocorrelated time-series with Binomial marginal distribution.
@@ -289,8 +286,8 @@ generate_nbinomial <- function(n, size, prob, rho, epsilon = 0.001, precision = 
 #'   process is not stationary.
 #' @export
 #' @seealso \code{\link{generate_DARTA}}
-generate_binomial <- function(n, size, prob, rho, epsilon = 0.001, precision = 0.00001){
-  return(generate_DARTA(n= n, rho = rho, distribution_name = "binomial", param1 = size, param2=prob, epsilon = epsilon, precision = precision))
+generate_binomial <- function(n, size, prob, rho, epsilon = 0.001, precision = 0.00001, method = "interpol" ){
+  return(generate_DARTA(n= n, rho = rho, distribution_name = "binomial", param1 = size, param2=prob, epsilon = epsilon, precision = precision, method = method ))
 }
 
 #' Generate autocorrelated time-series with marginal poisson-distribution.
@@ -311,8 +308,8 @@ generate_binomial <- function(n, size, prob, rho, epsilon = 0.001, precision = 0
 #'   process is not stationary.
 #' @export
 #' @seealso \code{\link{generate_DARTA}}
-generate_poisson <- function(n, lambda, rho, epsilon = 0.001, precision = 0.00001){
-  return(generate_DARTA(n= n, rho = rho, distribution_name = "poisson", param1 = lambda,epsilon = epsilon, precision = precision))
+generate_poisson <- function(n, lambda, rho, epsilon = 0.001, precision = 0.00001, method = "interpol" ){
+  return(generate_DARTA(n= n, rho = rho, distribution_name = "poisson", param1 = lambda,epsilon = epsilon, precision = precision, method = method ))
 }
 
 #' Generate time-series of the provided marginal distribution and
@@ -335,7 +332,7 @@ generate_poisson <- function(n, lambda, rho, epsilon = 0.001, precision = 0.0000
 #' generate_DARTA(n = 10000, rho = c(0.7,0.5,0.3), distribution_name = "nbinomial", param1 = 10, param2 = 0.6)
 #' @seealso \code{\link{gen_DARTA}}
 #' @export
-generate_DARTA <- function(n, rho, distribution_name = c("nbinomial", "binomial","poisson", "uniform"), epsilon = 0.001, n_interpol = 20, param1 = NULL, param2=NULL, precision = 0.00001, method = c("interpol", "binary", use_caching = T)){
+generate_DARTA <- function(n, rho, distribution_name = c("nbinomial", "binomial","poisson", "uniform"), epsilon = 0.001, n_interpol = 20, param1 = NULL, param2=NULL, precision = 0.00001, method = c("interpol", "binary"), use_caching = T){
   if(distribution_name == "nbinomial"){
     mean = param1*(1-param2)/param2
     var = param1*(1-param2)/(param2**2)
@@ -405,7 +402,7 @@ generate_DARTA <- function(n, rho, distribution_name = c("nbinomial", "binomial"
 
 
 gen_DARTA <- function(n, cdf, inv, mean, var, rho, cdf_name_parameterized, epsilon,n_interpol, method, precision, use_caching =T){
-  # check if variables are valid
+  # check if arguments are valid
   if(!(method %in% c("interpol", "binary"))){
     stop(paste("Method should be either 'interpol' or 'binary', but is '", method,"'", sep = ""))
   }
@@ -465,6 +462,7 @@ find_r_interpol <- function(cdf, cdf_name_parameterized, mean, var, precision, r
     cache_file <- file.path(".interpol_caches", full_name_parameterized)
     bound_cache_file <- file.path(".interpol_caches", paste("correlation_bound", full_name_parameterized, sep = "_"))
     search_boundaries<-if(file.exists(bound_cache_file)) loadRDS(bound_cache_file) else  get_correlation_bound(cdf=cdf, mean=mean, var=var, precision = precision) 
+    dir.create(".interpol_caches", showWarnings = F)
     saveRDS(object = search_boundaries, file = bound_cache_file)
   }else{
     search_boundaries <- get_correlation_bound(cdf=cdf, mean=mean, var=var, precision = precision)

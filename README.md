@@ -1,22 +1,19 @@
 # DARTA
 
-The DARTA model allows for the generation of autocorrelated random number series of desired discrete marginal distribution and autocorrelation structure, i.e. the pearson-autocorrelation can be disctated for any lag. 
-It works by identifying a suitable stationary stochastic base process with marginal standard normal distribution and autocorrelation structure, which is transformed to a target process which exhibits the desired criteria, and from which the desired samples can be generated.
+The DARTA model allows for the generation of autocorrelated random number series of desired discrete marginal distribution and autocorrelation structure, i.e. the pearson-autocorrelation can be dictated for any lag. 
+It works by identifying a suitable stationary stochastic base process with marginal standard normal distribution and autocorrelation structure, which is transformed, via the inverse-transform-method, to a target process which exhibits the defined criteria, and from which the desired random number series can be generated.
 
 ## Implementation
 
 The model is implemented using the R programming language. It depends on a number of prerequisite packages, which are loeaded in the Environment when the DARTA.R script is sourced.
 As such, these following packages need to be installed in the R environment:
-- **VGAM**
-- **r2r**
+- **VGAM** (for bivariate normal distribution)
+- **r2r** (used for hashmap for caching)
 - **polynom**
 - **R.filesets**
 - **mvtnorm**
-- **purrr**
-- **pracma**
-- **Rsolnp**
-- **matrixcalc**
-- **psych**
+- **purrr** (to specify distribution parameters via partially applied functions)
+- **pracma** (for fitting a polynomial when using the 'interpol' method)
 
 ## Getting started
 For a short introduction to DARTA, consult the [Example.R](Example.R) file, which has a working example to get you started with the model.
