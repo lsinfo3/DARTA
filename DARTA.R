@@ -10,6 +10,7 @@ library(R.filesets)
 library(mvtnorm)
 #'@import purrr
 library(purrr)
+#'@import pracma
 library(pracma)
 library(Rsolnp)
 library(matrixcalc)
@@ -68,7 +69,7 @@ integrand_plateau_symmetric<- function(k, cdf, r) {
 #'  has a relative size compared to the current total sum smaller then the
 #'  precision.
 #'
-expected_target_product_discrete_inf <- function(cdf,r, precision){
+expected_target_product <- function(cdf,r, precision){
   k <- 1
   total <- 0
   s <- 0
@@ -96,7 +97,7 @@ expected_target_product_discrete_inf <- function(cdf,r, precision){
 #'@param expected_target_product Approximation (or exact value, if possible) of
 #'  the integral function defining the expected value of two random variables of
 #'  the target process. Usually expects the return value of
-#'  \link{expected_target_product_discrete_inf}.
+#'  \link{expected_target_product}.
 #'@param mean Mean of the target distribution.
 #'@param var Variance of the target distribution.
 get_target_correlation <- function(expected_target_product,mean, var){
@@ -113,10 +114,10 @@ get_target_correlation <- function(expected_target_product,mean, var){
 #'@param mean Mean of the target distribution. '@param var Variance of the
 #target distribution. '@param precision Defines a threshhold for the relative
 #size of the subsummand in the computation of function
-#\code{\link{expected_target_product_discrete_inf}}
+#\code{\link{expected_target_product}}
 
-get_correlation_bound_discrete_inf<- function(cdf, mean, var, precision){
-  return(c(get_target_correlation(expected_target_product = expected_target_product_discrete_inf(cdf = cdf,r = -1, precision = precision), mean=mean, var=var), get_target_correlation(expected_target_product_discrete_inf(cdf = cdf,r = 1, precision = precision), mean=mean, var=var)))
+get_correlation_bound<- function(cdf, mean, var, precision){
+  return(c(get_target_correlation(expected_target_product = expected_target_product(cdf = cdf,r = -1, precision = precision), mean=mean, var=var), get_target_correlation(expected_target_product(cdf = cdf,r = 1, precision = precision), mean=mean, var=var)))
 }
 
 
@@ -153,23 +154,25 @@ get_correlation_bound_discrete_inf<- function(cdf, mean, var, precision){
 #'   process, or \code{NULL} if the process was not successful.
 #'
 find_r <- function(cdf, mean, var, rho, cdf_name_parameterized, epsilon, precision, print_progress=FALSE){
-  cache_folder <- ".DARTA_caches"
-  cache_name <- paste(cdf_name_parameterized, "precision",precision, sep = "_")
-  boundary_cache_name <-paste("correlation_bound",cdf_name_parameterized,precision, sep = "_")
+
   r <- vector(mode="double", length = length(rho))
   approximation <- vector(mode="double", length = length(rho))
-    if(file.exists(file.path(cache_folder,cache_name))){
-      cache <- loadRDS(file.path(cache_folder,cache_name))
-    } else{
-      dir.create(cache_folder, showWarnings = F)
-      cache <- hashmap(default=-2)
-    }
-  if(file.exists(file.path(cache_folder,boundary_cache_name))){
-    search_boundaries<- loadRDS(file.path(cache_folder,boundary_cache_name))
+  
+  cache_dir <- ".DARTA_caches"
+  cache_path <- file.path(cache_dir,paste(cdf_name_parameterized, "precision",precision, sep = "_"))
+  boundary_cache_path <-file.path(cache_dir, paste("correlation_bound",cdf_name_parameterized,precision, sep = "_"))
+  if(file.exists(cache_path)){
+    cache <- loadRDS(cache_path)
+  } else{
+    dir.create(cache_dir, showWarnings = F)
+    cache <- hashmap(default=-2)
+  }
+  if(file.exists(boundary_cache_path)){
+    search_boundaries<- loadRDS(boundary_cache_path)
   }else{
-    search_boundaries <- get_correlation_bound_discrete_inf(cdf=cdf, mean=mean, var=var, precision = precision)
-    dir.create(cache_folder, showWarnings = F)
-    saveRDS(search_boundaries, file = file.path(cache_folder,boundary_cache_name))
+    search_boundaries <- get_correlation_bound(cdf=cdf, mean=mean, var=var, precision = precision)
+    dir.create(cache_dir, showWarnings = F)
+    saveRDS(search_boundaries, file = boundary_cache_path)
   }
   for(i in 1:length(rho)){
     if(rho[i]<search_boundaries[1] | rho[i]>search_boundaries[2]){
@@ -194,10 +197,10 @@ find_r <- function(cdf, mean, var, rho, cdf_name_parameterized, epsilon, precisi
       search_r <- (interval[1]+interval[2])/2
       current <-cache[[search_r]]
       if(current==-2){ #cache miss
-        current <- get_target_correlation(expected_target_product_discrete_inf(cdf = cdf, r = search_r, precision = precision), mean=mean,  var=var)
+        current <- get_target_correlation(expected_target_product(cdf = cdf, r = search_r, precision = precision), mean=mean,  var=var)
         if(!is.null(current)){
           cache[[search_r]]<-current
-          saveRDS(cache, file = file.path(cache_folder,cache_name))
+          saveRDS(cache, file = cache_path)
         }else{
           print(paste("An Error occurred during computation of the target process correlation."))
           return(NULL)
@@ -243,7 +246,6 @@ is_stationary <- function(alpha){
   }
   return(is_stationary)
 }
-
 
 #' Generate autocorrelated time-series with Negative Binomial marginal distribution.
 #'
@@ -333,30 +335,30 @@ generate_poisson <- function(n, lambda, rho, epsilon = 0.001, precision = 0.0000
 #' generate_DARTA(n = 10000, rho = c(0.7,0.5,0.3), distribution_name = "nbinomial", param1 = 10, param2 = 0.6)
 #' @seealso \code{\link{gen_DARTA}}
 #' @export
-generate_DARTA <- function(n, rho, distribution_name = c("nbinomial", "binomial","poisson", "uniform"), epsilon = 0.001, param1 = NULL, param2=NULL, precision = 0.00001){
+generate_DARTA <- function(n, rho, distribution_name = c("nbinomial", "binomial","poisson", "uniform"), epsilon = 0.001, n_interpol = 20, param1 = NULL, param2=NULL, precision = 0.00001, method = c("interpol", "binary", use_caching = T)){
   if(distribution_name == "nbinomial"){
     mean = param1*(1-param2)/param2
     var = param1*(1-param2)/(param2**2)
     cdf_name_parameterized <- paste("nbinomial",as.character(param1),as.character(param2),sep = "-")
-    return(gen_DARTA_interpol(n = n, cdf = partial(pnbinom, size = param1, prob = param2),inv = partial(qnbinom, size = param1, prob = param2), mean = mean, var = var, cdf_name_parameterized = cdf_name_parameterized, rho = rho, epsilon = epsilon, precision = precision))
+    return(gen_DARTA(n = n, cdf = partial(pnbinom, size = param1, prob = param2),inv = partial(qnbinom, size = param1, prob = param2), mean = mean, var = var, cdf_name_parameterized = cdf_name_parameterized, rho = rho, epsilon = epsilon,n_interpol = n_interpol, method = method, precision = precision, use_caching = use_caching))
   }
   if(distribution_name == "binomial"){
     mean = param1*param2
     var = param1*param2*(1-param2)
     cdf_name_parameterized <-paste("binomial",as.character(param1),as.character(param2),sep = "-")
-    return(gen_DARTA_interpol(n = n, cdf = partial(pbinom, size = param1, prob = param2),inv = partial(qbinom, size = param1, prob = param2), cdf_name_parameterized = cdf_name_parameterized,mean = mean, var = var, rho = rho, epsilon = epsilon,  precision = precision))
+    return(gen_DARTA(n = n, cdf = partial(pbinom, size = param1, prob = param2),inv = partial(qbinom, size = param1, prob = param2), cdf_name_parameterized = cdf_name_parameterized,mean = mean, var = var, rho = rho, epsilon = epsilon,n_interpol = n_interpol, method = method,  precision = precision, use_caching = use_caching))
   }
   if(distribution_name == "poisson"){
     mean = param1
     var = param1
     cdf_name_parameterized <- paste("poisson",as.character(param1),sep = "-")
-    return(gen_DARTA_interpol(n = n, cdf = partial(ppois, lambda = param1),inv = partial(qpois, lambda = param1), cdf_name_parameterized = cdf_name_parameterized, mean = mean, var = var, rho = rho, epsilon = epsilon, precision = precision))
+    return(gen_DARTA(n = n, cdf = partial(ppois, lambda = param1),inv = partial(qpois, lambda = param1), cdf_name_parameterized = cdf_name_parameterized, mean = mean, var = var, rho = rho, epsilon = epsilon,n_interpol = n_interpol, method = method, precision = precision, use_caching = use_caching))
   }
   if(distribution_name == "uniform"){
     mean = (param2+param1)/2
     var = ((param2- param1)**2 -1)/12
     cdf_name_parameterized <- paste("uniform",as.character(param1),as.character(param2),sep = "-")
-    return(gen_DARTA_interpol(n = n, cdf = partial(pdunif, min = param1, max = param2), inv = partial(qdunif, min = param1,max = param2), cdf_name_parameterized = cdf_name_parameterized, mean = mean, var = var, rho = rho, epsilon = epsilon, precision = precision))
+    return(gen_DARTA(n = n, cdf = partial(pdunif, min = param1, max = param2), inv = partial(qdunif, min = param1,max = param2), cdf_name_parameterized = cdf_name_parameterized, mean = mean, var = var, rho = rho, epsilon = epsilon,n_interpol = n_interpol, method = method, precision = precision, use_caching = use_caching))
   }
 }
 
@@ -401,12 +403,32 @@ generate_DARTA <- function(n, rho, distribution_name = c("nbinomial", "binomial"
 #'   process is not stationary.
 #' @export
 
-gen_DARTA <- function(n, cdf, inv, mean, var, rho, cdf_name_parameterized, epsilon, precision){
-  r_detail <- find_r(cdf = cdf, mean = mean, var = var, rho = rho, cdf_name_parameterized = cdf_name_parameterized, epsilon = epsilon, precision = precision)
-  if(is.null(r_detail)){
+
+gen_DARTA <- function(n, cdf, inv, mean, var, rho, cdf_name_parameterized, epsilon,n_interpol, method, precision, use_caching =T){
+  # check if variables are valid
+  if(!(method %in% c("interpol", "binary"))){
+    stop(paste("Method should be either 'interpol' or 'binary', but is '", method,"'", sep = ""))
+  }
+  if(length(n_interpol)>1){ 
+    stop(paste("n_interpol should have length 1"))
+  }
+  if(length(epsilon)>1){
+    stop(paste("epsilon should have length 1"))
+  }
+  if(equals(method, "interpol") & (!is.numeric(n_interpol) | n_interpol <= 0 )){
+    stop(paste("When method 'interpol' is selected, n_interpol should be a positive natural number, but is ",n_interpol, sep = ""))
+  }
+  if(equals(method, "binary") & (epsilon <= 0 | epsilon >= 1)){
+    stop(paste("When method 'binary' is selected, epsilon should be a positive number much smaller than 1, but is ", epsilon, sep =""))
+  }
+  
+  r <- switch(method, 
+              "interpol" = find_r_interpol(cdf = cdf,cdf_name_parameterized=cdf_name_parameterized, mean = mean, var = var, precision = precision,rho = rho, n_interpol = n_interpol),
+              "binary" = find_r(cdf = cdf, mean = mean, var = var, rho = rho, cdf_name_parameterized = cdf_name_parameterized, epsilon = epsilon, precision = precision)[,1])
+  if(is.null(r)){
+    print("No suitable base process found, return NULL")
     return(NULL)
   }
-  r <- r_detail[,1]
   Y <- vector(mode = "double", length = n)
   p <- length(r)
   Z <- vector(mode = "numeric", length = p)
@@ -432,74 +454,77 @@ gen_DARTA <- function(n, cdf, inv, mean, var, rho, cdf_name_parameterized, epsil
   }
 }
 
-gen_DARTA_interpol <- function(n, cdf, inv, mean, var, rho, cdf_name_parameterized, epsilon, precision){
-  r=find_r_interpol(cdf = cdf,cdf_name_parameterized=cdf_name_parameterized, mean = mean, var = var, precision = precision,rho = rho)
-  Y <- vector(mode = "double", length = n)
-  p <- length(r)
-  Z <- vector(mode = "numeric", length = p)
-  gamma <- get_gamma(r)
-  alpha <- solve(gamma, r)
-  sigma <- sqrt(1 - alpha %*% r)
-  alpha <- rev(alpha)
-  if(p == 1){
-    init_fun <- rnorm
-  }else{
-    init_fun <- rmvnorm
-  }
-  if(is_stationary(alpha)){
-    Z <- rev(as.vector(init_fun(1, rep(0, p),gamma)))
-    for(i in 1:n){
-      Z[p+1] <-alpha %*% Z+ rnorm(1, mean=0,sd= sigma)
-      Z <- Z[-1]
-      Y[i] <- inv(pnorm(Z[p]))
-    }
-    return(Y)
-  }else{
-    print("Base process is not stationary")
-  }
-}
 
-#'
-find_r_interpol <- function(cdf,cdf_name_parameterized, mean, var,precision, rho, fit_eval_nr = 50, fit_poly_deg = 9){
-  # TODO check correlation boundary
-  # TODO check only posittive or negative autocorelations
-  # TODO find boudanries for interpolation in base process efficiently
-  lower_bound_fitting = if(min(rho)<0){-1} else{ 0}
-  upper_bound_fitting = if(min(rho)>0){1} else{ 0}
-  if(lower_bound_fitting == -1 & upper_bound_fitting == 1){
-    signifier = "full"
+find_r_interpol <- function(cdf, cdf_name_parameterized, mean, var, precision, rho, n_interpol, poly_deg = 9, use_caching = T){
+  lower_bound_fitting = if(min(rho)<0) -1 else 0
+  upper_bound_fitting = if(max(rho)>0) 1 else 0
+  
+  # check if autocorrelation values are feasible
+  if(use_caching){
+    full_name_parameterized = paste(cdf_name_parameterized, precision, sep = "_")
+    cache_file <- file.path(".interpol_caches", full_name_parameterized)
+    bound_cache_file <- file.path(".interpol_caches", paste("correlation_bound", full_name_parameterized, sep = "_"))
+    search_boundaries<-if(file.exists(bound_cache_file)) loadRDS(bound_cache_file) else  get_correlation_bound(cdf=cdf, mean=mean, var=var, precision = precision) 
+    saveRDS(object = search_boundaries, file = bound_cache_file)
   }else{
-    if(lower_bound_fitting == 0){
-      signifier = "positive"
-    }else{
-      signifier = "negative"
-    }
+    search_boundaries <- get_correlation_bound(cdf=cdf, mean=mean, var=var, precision = precision)
   }
-  full_name_parameterized = paste(cdf_name_parameterized,signifier, fit_eval_nr,fit_poly_deg, precision, sep = "_")
-  cache_file <- file.path(".interpol_caches", full_name_parameterized)
-  search_boundaries <- get_correlation_bound_discrete_inf(cdf=cdf, mean=mean, var=var, precision = precision)
   if(any(rho<search_boundaries[1]) | any(rho>search_boundaries[2])){
-    print(paste("correlation boundary violated for precision ",precision, ", resulting bounds: ", search_boundaries[1],"|", search_boundaries[2], sep = ""))
+    stop(paste("correlation boundary violated for precision ",precision, ", resulting bounds: [", search_boundaries[1],", ", search_boundaries[2],"]", sep = ""))
     return(NULL)
   }
-  fitting_base <- seq(lower_bound_fitting,upper_bound_fitting, length.out = fit_eval_nr)
-  interpol_target <- get_interpol_target_cached(cache_file= cache_file,fitting_base = fitting_base, cdf = cdf, precision  = precision, mean = mean, var = var)
-
+  
+  # calculate values for interpolating correlation of target series
+  fitting_base <- seq(lower_bound_fitting,upper_bound_fitting, length.out = n_interpol)
+  if(use_caching){
+    interpol_target <- get_interpol_target_cached(cache_file= cache_file,fitting_base = fitting_base, cdf = cdf, precision  = precision, mean = mean, var = var)
+  }else{
+    interpol_target <- get_interpol_target(fitting_base = fitting_base, cdf = cdf, precision  = precision, mean = mean, var = var)
+  }
+  
+  # interpolate autocorrelation of target series
   interpol_base=seq(lower_bound_fitting, upper_bound_fitting, 0.0002)
-  interpol_function = pracma::polyfit(x = fitting_base, y = interpol_target, n = fit_poly_deg)
+  interpol_function = pracma::polyfit(x = fitting_base, y = as.numeric(interpol_target), n = poly_deg)
   interpol_target=pracma::polyval(interpol_function ,interpol_base)
   interpol_values=cbind(interpol_base,interpol_target)
-  r=approx(interpol_values[,2],interpol_values[,1], rho)$y
+  r=approx(interpol_values[,2],interpol_values[,1], rho, method = "linear", rule = 2)$y
   return(r)
 }
 
-get_interpol_target_cached <- function(cache_file, fitting_base, cdf, precision, mean , var){
-  # if(file.exists(cache_file)){
-  #   interpol_target <- loadRDS(cache_file)
-  # }else{
-    fitting_intermed_res<- sapply(fitting_base,FUN=expected_target_product_discrete_inf, cdf = cdf, precision  = precision)
-    interpol_target <- sapply(fitting_intermed_res, FUN=get_target_correlation,mean=mean,  var=var)
-    # saveRDS(interpol_target, file = cache_file, compress = T)
-  # }
-  return(interpol_target)
+get_interpol_target <- function(fitting_base, cdf, precision, mean, var){
+  fitting_intermed_res<- sapply(fitting_base,FUN=expected_target_product, cdf = cdf, precision  = precision)
+  target_vals <- sapply(fitting_intermed_res, FUN=get_target_correlation,mean=mean,  var=var)
+  return(target_vals)
 }
+
+get_interpol_target_cached <- function(cache_file, fitting_base, cdf, precision, mean, var){
+  cache <- if(file.exists(cache_file)) loadRDS(cache_file) else hashmap(default = -2)
+  target_vals <- sapply(fitting_base, FUN = get_target_val_cached, cache = cache, cdf = cdf, precision = precision, mean=mean, var=var)
+  cache[fitting_base] = target_vals
+  if(!file.exists(".interpol_caches")){
+    dir.create(".interpol_caches", showWarnings = F)
+  }
+  saveRDS(cache, file = cache_file, compress = T)
+  return(target_vals)
+}
+
+get_target_val_cached <-
+  function(base_val, cache, cdf, precision, mean, var) {
+    cached_val <- cache[base_val]
+    target_val <-
+      if (cached_val != -2) {
+        cached_val
+      } else{
+        get_target_correlation(
+          expected_target_product = expected_target_product(
+            cdf = cdf,
+            r = base_val,
+            precision = precision
+          ),
+          mean = mean,
+          var = var
+        )
+      }
+  }
+
+
