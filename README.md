@@ -43,7 +43,7 @@ library(DARTA)
 
 ## Getting started
 
-the [men/examples](man/examples) directory contains all currently available examples, which can also be found on the corresponding documentation pages.
+the [man/examples](man/examples) directory contains all currently available examples, which can also be found on the corresponding documentation pages.
 
 ## Code structure
 
