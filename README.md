@@ -23,12 +23,14 @@ distribution**
 The model is implemented using the R programming language. It depends on
 a number of prerequisite packages, which need to be installed in order
 for the DARTA package to function. Following are the required
-packages: - **VGAM** (for bivariate normal distribution) - **r2r** (used
-for hashmap for caching) - **polynom** (for generating polynomial
-equation) - **mvtnorm** (to generate a multivariate normal distibution
-as starting point for the time-series generation) - **purrr** (to
-specify distribution parameters via partially applied functions) -
-**pracma** (for fitting a polynomial when using the 'interpol' method)
+packages: 
+
+- **VGAM** (for bivariate normal distribution) 
+- **r2r** (hashmap for caching)
+- **polynom** (for generating polynomial equation) 
+- **mvtnorm** (to generate a multivariate normal distribution as starting point for the time-series generation) 
+- **purrr** (to specify distribution parameters via partially applied functions) 
+- **pracma** (for fitting a polynomial when using the 'interpol' method)
 
 ## Installation
 
