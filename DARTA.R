@@ -150,8 +150,8 @@ get_correlation_bound<- function(cdf, mean, var, precision){
 #' @return A vector containing a fitting autocorrelation structure for the base
 #'   process, or \code{NULL} if the process was not successful.
 #'
-find_r <- function(cdf, mean, var, rho, cdf_name_parameterized, epsilon, precision, print_progress=FALSE){
-
+find_r_binary <- function(cdf, mean, var, rho, cdf_name_parameterized, epsilon, precision, print_progress=FALSE){
+  
   r <- vector(mode="double", length = length(rho))
   approximation <- vector(mode="double", length = length(rho))
   
@@ -189,13 +189,14 @@ find_r <- function(cdf, mean, var, rho, cdf_name_parameterized, epsilon, precisi
       approximation[i] <- 0
       r_found <-  TRUE
     }
-    while(!r_found & search_limiter < 20){
+    while(!r_found & search_limiter < 30){
+      # search was not successful yet
       search_limiter <- search_limiter+1
       search_r <- (interval[1]+interval[2])/2
       current <-cache[[search_r]]
       if(current==-2){ #cache miss
         current <- get_target_correlation(expected_target_product(cdf = cdf, r = search_r, precision = precision), mean=mean,  var=var)
-        if(!is.null(current)){
+        if(!is.null(current)){ # valid result
           cache[[search_r]]<-current
           saveRDS(cache, file = cache_path)
         }else{
@@ -207,16 +208,12 @@ find_r <- function(cdf, mean, var, rho, cdf_name_parameterized, epsilon, precisi
         print(paste0("r[",i,"]:", search_r, " || approximation for rho: ", current))
       }
       if(abs(current - rho[i])<epsilon){
+        # approximation successful
         r_found = TRUE
         r[i] <- search_r
         approximation[i] <- current
       }else{
-        if(rho[i]<current){
-          interval <- c(interval[1], search_r)
-        }
-        else{
-          interval <- c(search_r, interval[2])
-        }
+        interval <- if(rho[i]<current) c(interval[1], search_r) else c(search_r, interval[2])
       }
     }
   }
@@ -244,7 +241,7 @@ is_stationary <- function(alpha){
   return(is_stationary)
 }
 
-#' Generate autocorrelated time-series with Negative Binomial marginal distribution.
+#' Generate autocorrelated time-series with marginal negative binomial distribution.
 #'
 #' @param n length of time-series to be generated, i.e., total size of the
 #'   vector of random numbers that is returned.
@@ -264,10 +261,10 @@ is_stationary <- function(alpha){
 #' @export
 #' @seealso \code{\link{generate_DARTA}}
 generate_nbinomial <- function(n, size, prob, rho, epsilon = 0.001, precision = 0.00001, method = "interpol" ){
-  return(generate_DARTA(n= n, rho = rho, distribution_name = "nbinomial", param1 = size, param2=prob,epsilon = epsilon, precision = precision, method = method))
+  return(generate_DARTA(n= n, rho = rho, distribution_name = "nbinomial", size = size, prob=prob,epsilon = epsilon, precision = precision, method = method))
 }
 
-#' Generate autocorrelated time-series with Binomial marginal distribution.
+#' Generate autocorrelated time-series with marginal binomial distribution.
 #'
 #' @param n length of time-series to be generated, i.e., total size of the
 #'   vector of random numbers that is returned.
@@ -287,10 +284,10 @@ generate_nbinomial <- function(n, size, prob, rho, epsilon = 0.001, precision = 
 #' @export
 #' @seealso \code{\link{generate_DARTA}}
 generate_binomial <- function(n, size, prob, rho, epsilon = 0.001, precision = 0.00001, method = "interpol" ){
-  return(generate_DARTA(n= n, rho = rho, distribution_name = "binomial", param1 = size, param2=prob, epsilon = epsilon, precision = precision, method = method ))
+  return(generate_DARTA(n= n, rho = rho, distribution_name = "binomial", size = size, prob=prob, epsilon = epsilon, precision = precision, method = method ))
 }
 
-#' Generate autocorrelated time-series with marginal poisson-distribution.
+#' Generate autocorrelated time-series with marginal poisson distribution.
 #'
 #' @param n length of time-series to be generated, i.e., total size of the
 #'   vector of random numbers that is returned.
@@ -309,7 +306,7 @@ generate_binomial <- function(n, size, prob, rho, epsilon = 0.001, precision = 0
 #' @export
 #' @seealso \code{\link{generate_DARTA}}
 generate_poisson <- function(n, lambda, rho, epsilon = 0.001, precision = 0.00001, method = "interpol" ){
-  return(generate_DARTA(n= n, rho = rho, distribution_name = "poisson", param1 = lambda,epsilon = epsilon, precision = precision, method = method ))
+  return(generate_DARTA(n= n, rho = rho, distribution_name = "poisson", lambda = lambda,epsilon = epsilon, precision = precision, method = method ))
 }
 
 #' Generate time-series of the provided marginal distribution and
@@ -332,30 +329,50 @@ generate_poisson <- function(n, lambda, rho, epsilon = 0.001, precision = 0.0000
 #' generate_DARTA(n = 10000, rho = c(0.7,0.5,0.3), distribution_name = "nbinomial", param1 = 10, param2 = 0.6)
 #' @seealso \code{\link{gen_DARTA}}
 #' @export
-generate_DARTA <- function(n, rho, distribution_name = c("nbinomial", "binomial","poisson", "uniform"), epsilon = 0.001, n_interpol = 20, param1 = NULL, param2=NULL, precision = 0.00001, method = c("interpol", "binary"), use_caching = T){
+generate_DARTA <- function(n, rho, distribution_name = c("nbinomial", "binomial","poisson", "uniform"), epsilon = 0.001, n_interpol = 20, precision = 0.00001, method = c("interpol", "binary"), use_caching = T, ...){
+  distribution_name <- match.arg(distribution_name)
+  params <- list(...)
   if(distribution_name == "nbinomial"){
-    mean = param1*(1-param2)/param2
-    var = param1*(1-param2)/(param2**2)
-    cdf_name_parameterized <- paste("nbinomial",as.character(param1),as.character(param2),sep = "-")
-    return(gen_DARTA(n = n, cdf = partial(pnbinom, size = param1, prob = param2),inv = partial(qnbinom, size = param1, prob = param2), mean = mean, var = var, cdf_name_parameterized = cdf_name_parameterized, rho = rho, epsilon = epsilon,n_interpol = n_interpol, method = method, precision = precision, use_caching = use_caching))
+    stopifnot("Please provide 'size' and 'prob' arguments for nbinomial distribution as additional function arguments" = ("size" %in% names(params) & "prob" %in% names(params)))
+    size <- params$size
+    prob <- params$prob
+    stopifnot("Please provide valid size for nbinomial distribution" = is.numeric(size))
+    stopifnot("Please provide valid prob for nbinomial distribution" = is.numeric(prob))
+    mean = size*(1-prob)/prob
+    var = size*(1-prob)/(prob**2)
+    cdf_name_parameterized <- paste("nbinomial",as.character(size),as.character(prob),sep = "-")
+    return(gen_DARTA(n = n, cdf = partial(pnbinom, size = size, prob = prob),inv = partial(qnbinom, size = size, prob = prob), mean = mean, var = var, cdf_name_parameterized = cdf_name_parameterized, rho = rho, epsilon = epsilon,n_interpol = n_interpol, method = method, precision = precision, use_caching = use_caching))
   }
   if(distribution_name == "binomial"){
-    mean = param1*param2
-    var = param1*param2*(1-param2)
-    cdf_name_parameterized <-paste("binomial",as.character(param1),as.character(param2),sep = "-")
-    return(gen_DARTA(n = n, cdf = partial(pbinom, size = param1, prob = param2),inv = partial(qbinom, size = param1, prob = param2), cdf_name_parameterized = cdf_name_parameterized,mean = mean, var = var, rho = rho, epsilon = epsilon,n_interpol = n_interpol, method = method,  precision = precision, use_caching = use_caching))
+    stopifnot("Please provide 'size' and 'prob' arguments for binomial distribution as additional function arguments" = ("size" %in% names(params) & "prob" %in% names(params)))
+    size <- params$size
+    prob <- params$prob
+    stopifnot("Please provide valid size for binomial distribution" = is.numeric(size))
+    stopifnot("Please provide valid prob for binomial distribution" = is.numeric(prob))
+    mean = size*prob
+    var = size*prob*(1-prob)
+    cdf_name_parameterized <-paste("binomial",as.character(size),as.character(prob),sep = "-")
+    return(gen_DARTA(n = n, cdf = partial(pbinom, size = size, prob = prob),inv = partial(qbinom, size = size, prob = prob), cdf_name_parameterized = cdf_name_parameterized,mean = mean, var = var, rho = rho, epsilon = epsilon,n_interpol = n_interpol, method = method,  precision = precision, use_caching = use_caching))
   }
   if(distribution_name == "poisson"){
-    mean = param1
-    var = param1
-    cdf_name_parameterized <- paste("poisson",as.character(param1),sep = "-")
-    return(gen_DARTA(n = n, cdf = partial(ppois, lambda = param1),inv = partial(qpois, lambda = param1), cdf_name_parameterized = cdf_name_parameterized, mean = mean, var = var, rho = rho, epsilon = epsilon,n_interpol = n_interpol, method = method, precision = precision, use_caching = use_caching))
+    stopifnot("Please provide 'lambda' argument for nbinomial distribution as additional function arguments" = "lambda" %in% names(params))
+    lambda <- params$lambda
+    stopifnot("please provide valid lambda for poisson distribution" = is.numeric(lambda))
+    mean = lambda
+    var = lambda
+    cdf_name_parameterized <- paste("poisson",as.character(lambda),sep = "-")
+    return(gen_DARTA(n = n, cdf = partial(ppois, lambda = lambda),inv = partial(qpois, lambda = lambda), cdf_name_parameterized = cdf_name_parameterized, mean = mean, var = var, rho = rho, epsilon = epsilon,n_interpol = n_interpol, method = method, precision = precision, use_caching = use_caching))
   }
   if(distribution_name == "uniform"){
-    mean = (param2+param1)/2
-    var = ((param2- param1)**2 -1)/12
-    cdf_name_parameterized <- paste("uniform",as.character(param1),as.character(param2),sep = "-")
-    return(gen_DARTA(n = n, cdf = partial(pdunif, min = param1, max = param2), inv = partial(qdunif, min = param1,max = param2), cdf_name_parameterized = cdf_name_parameterized, mean = mean, var = var, rho = rho, epsilon = epsilon,n_interpol = n_interpol, method = method, precision = precision, use_caching = use_caching))
+    stopifnot("Please provide 'min' and 'max' arguments for nbinomial distribution as additional function arguments" = ("min" %in% names(params) & "max" %in% names(params)))
+    min <- params$min
+    max <- params$max
+    stopifnot("please provide valid min for uniform distribution" = is.numeric(min))
+    stopifnot("please provide valid max for uniform distribution" = is.numeric(max))
+    mean = (max+min)/2
+    var = ((max- min)**2 -1)/12
+    cdf_name_parameterized <- paste("uniform",as.character(min),as.character(max),sep = "-")
+    return(gen_DARTA(n = n, cdf = partial(pdunif, min = min, max = max), inv = partial(qdunif, min = min,max = max), cdf_name_parameterized = cdf_name_parameterized, mean = mean, var = var, rho = rho, epsilon = epsilon,n_interpol = n_interpol, method = method, precision = precision, use_caching = use_caching))
   }
 }
 
@@ -378,7 +395,7 @@ generate_DARTA <- function(n, rho, distribution_name = c("nbinomial", "binomial"
 #' @param cdf_name_parameterized Name of the target Distribution, together with
 #'   its parameters, separated by dashes. Used for naming the cache-file, which
 #'   stores a map of values from the base process autocorrelation space to the
-#'   target process autocorrelation space.
+#'   target process autocorrelation space. Could theoretically be chosen arbitrarily, but should be unique
 #' @param epsilon Controls acceptable error within which the target
 #'   autocorrelation is to be approximated by the base process. Defaults to
 #'   0.001.
@@ -403,9 +420,7 @@ generate_DARTA <- function(n, rho, distribution_name = c("nbinomial", "binomial"
 
 gen_DARTA <- function(n, cdf, inv, mean, var, rho, cdf_name_parameterized, epsilon,n_interpol, method, precision, use_caching =T){
   # check if arguments are valid
-  if(!(method %in% c("interpol", "binary"))){
-    stop(paste("Method should be either 'interpol' or 'binary', but is '", method,"'", sep = ""))
-  }
+  match.arg(arg = method, choices =  c("interpol", "binary"))
   if(length(n_interpol)>1){ 
     stop(paste("n_interpol should have length 1"))
   }
@@ -421,10 +436,9 @@ gen_DARTA <- function(n, cdf, inv, mean, var, rho, cdf_name_parameterized, epsil
   
   r <- switch(method, 
               "interpol" = find_r_interpol(cdf = cdf,cdf_name_parameterized=cdf_name_parameterized, mean = mean, var = var, precision = precision,rho = rho, n_interpol = n_interpol),
-              "binary" = find_r(cdf = cdf, mean = mean, var = var, rho = rho, cdf_name_parameterized = cdf_name_parameterized, epsilon = epsilon, precision = precision)[,1])
+              "binary" = find_r_binary(cdf = cdf, mean = mean, var = var, rho = rho, cdf_name_parameterized = cdf_name_parameterized, epsilon = epsilon, precision = precision)[,1])
   if(is.null(r)){
-    print("No suitable base process found, return NULL")
-    return(NULL)
+    stop("No suitable base process found")
   }
   Y <- vector(mode = "double", length = n)
   p <- length(r)
@@ -447,7 +461,7 @@ gen_DARTA <- function(n, cdf, inv, mean, var, rho, cdf_name_parameterized, epsil
     }
     return(Y)
   }else{
-    print("Base process is not stationary")
+    stop("Base process is not stationary")
   }
 }
 
@@ -497,6 +511,8 @@ get_interpol_target <- function(fitting_base, cdf, precision, mean, var){
 
 get_interpol_target_cached <- function(cache_file, fitting_base, cdf, precision, mean, var){
   cache <- if(file.exists(cache_file)) loadRDS(cache_file) else hashmap(default = -2)
+  
+  # either compute target vals to which to fit polynomial function, or load them from the cache
   target_vals <- sapply(fitting_base, FUN = get_target_val_cached, cache = cache, cdf = cdf, precision = precision, mean=mean, var=var)
   cache[fitting_base] = target_vals
   if(!file.exists(".interpol_caches")){
@@ -511,8 +527,10 @@ get_target_val_cached <-
     cached_val <- cache[base_val]
     target_val <-
       if (cached_val != -2) {
+        # cache hit
         cached_val
       } else{
+        # cache miss
         get_target_correlation(
           expected_target_product = expected_target_product(
             cdf = cdf,
@@ -524,5 +542,3 @@ get_target_val_cached <-
         )
       }
   }
-
-
