@@ -2,37 +2,52 @@
 % Please edit documentation in R/DARTA.R
 \name{generate_DARTA}
 \alias{generate_DARTA}
-\title{Generate time-series of the provided marginal distribution and
-autocorrelation structure.}
+\title{Create time-series of target distribution and autocorrelation structure, if
+possible.}
 \usage{
 generate_DARTA(
   n,
+  cdf,
+  inv,
+  mean,
+  var,
   rho,
-  distribution_name = c("nbinomial", "binomial", "poisson", "uniform"),
-  gamma = 1e-05,
-  method = c("interpol", "binary"),
-  epsilon = 0.001,
-  n_interpol = 20,
-  use_caching = T,
-  ...
+  cdf_name_parameterized,
+  epsilon,
+  n_interpol,
+  method,
+  gamma,
+  use_caching = T
 )
 }
 \arguments{
 \item{n}{length of time-series to be generated, i.e., total size of the
 vector of random numbers that is returned.}
 
-\item{rho}{Autocorrelation structure to be approximated, as a vector of
-numerics.}
+\item{cdf}{Marginal CDF of target process.}
 
-\item{distribution_name}{Name of the Distribution to be generated. Currently
-supported are "nbinomial", "binomial", "poisson", and "uniform".}
+\item{inv}{Inverse of marginal CDF of target process, a.k.a. quantile
+function.}
 
-\item{gamma}{Threshold for computation of the expected value of the
-product of two random variables of the target process. defaults to 10^-5.}
+\item{mean}{Mean of marginal CDF of target process.}
+
+\item{var}{Variance of marginal CDF of target process.}
+
+\item{rho}{Target autocorrelation Structure of target process, provided as a
+vector of numerics. Position on the vector describes the lag for which the
+numeric autocorrelation value is supposed to occur.}
+
+\item{cdf_name_parameterized}{Name of the target Distribution, together with
+its parameters, separated by dashes. Used for naming the cache-file, which
+stores a map of values from the base process autocorrelation space to the
+target process autocorrelation space. Could theoretically be chosen arbitrarily, but should be unique}
 
 \item{epsilon}{Controls acceptable error within which the target
 autocorrelation is to be approximated by the base process. Defaults to
 0.001.}
+
+\item{gamma}{Threshold for computation of the expected value of the
+product of two random variables of the target process.}
 }
 \value{
 Vector containing a time-series of length n with autocorrelation rho
@@ -40,12 +55,13 @@ and marginal distribution defined by distribution_name, or NULL if base
 process is not stationary.
 }
 \description{
-Generate time-series of the provided marginal distribution and
-autocorrelation structure.
+Create time-series of target distribution and autocorrelation structure, if
+possible.
 }
-\examples{
-generate_DARTA(n = 10000, rho = c(0.7,0.5,0.3), distribution_name = "nbinomial", param1 = 10, param2 = 0.6)
+\details{
+It is generally encouraged to use \code{\link{generate_DARTA}}
+instead, which calls upon this function.
 }
 \seealso{
-\code{\link{gen_DARTA}}
+\code{\link{generate_distribution}}
 }

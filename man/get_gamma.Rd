@@ -2,7 +2,7 @@
 % Please edit documentation in R/DARTA.R
 \name{get_gamma}
 \alias{get_gamma}
-\title{Determine Gamma matrix for solving Yule-Walker-Equations.}
+\title{Build Gamma matrix for solving Yule-Walker-Equations.}
 \usage{
 get_gamma(r)
 }
@@ -11,5 +11,5 @@ get_gamma(r)
 of the base process.}
 }
 \description{
-Determine Gamma matrix for solving Yule-Walker-Equations.
+Build Gamma matrix for solving Yule-Walker-Equations.
 }
