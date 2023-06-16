@@ -1,0 +1,18 @@
+Package: DARTA
+Title: Generation of Autocorrelated Random Numbers using  Discrete AutoRegression To Anything
+Version: 0.0.0.9000
+Authors@R: 
+    person("David", "Raunecker", , "david.raunecker@uni-wuerzburg.de", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: What the package does (one paragraph).
+License: `use_mit_license()`
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Imports:
+        VGAM,
+        r2r,
+        polynom,
+        mvtnorm,
+        purrr,
+        pracma
