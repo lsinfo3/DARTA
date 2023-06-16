@@ -84,7 +84,7 @@ the [man/examples](man/examples) directory contains all currently available exam
 ```
 
 ## Program flow
-This diagram is meant to roughly visualize the program flow od the DARTA package, which can be helpful with tracing errors.
+This diagram is meant to roughly visualize the program flow of the DARTA package, which can be helpful when tracing errors.
 
 ```mermaid
 graph LR
@@ -108,4 +108,4 @@ F --> Z[RESULT]
 
 ## Contact
 
-If you have any questions, suggestions, or concerns, please contact me at [david.raunecker\@uni-wuerzburg.de](mailto:david.raunecker@uni-wuerzburg.de){.email}
+If you have any questions, suggestions, or concerns, please raise an issue or contact [david.raunecker\@uni-wuerzburg.de](mailto:david.raunecker@uni-wuerzburg.de){.email}
