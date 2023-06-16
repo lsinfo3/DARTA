@@ -1,10 +1,14 @@
 # DARTA
 
-The DARTA model allows for the generation of autocorrelated random number series of desired discrete marginal distribution and autocorrelation structure, i.e. the pearson-autocorrelation can be dictated for any lag. It works by identifying a suitable stationary stochastic base process with marginal standard normal distribution and autocorrelation structure, which is transformed, via the inverse-transform-method, to a target process which exhibits the defined criteria, and from which the desired random number series can be generated.
+The DARTA model allows for the generation of autocorrelated random number series of desired discrete marginal distribution and autocorrelation structure, i.e. the pearson-autocorrelation can be dictated for any lag. It works by identifying a suitable stationary stochastic base process with marginal standard normal distribution and autocorrelation structure, which is used to generate a time-series following a standard normal distribution. This time-series is then transformed, via the inverse-transform-method, to a time-series with the desired marginal distribution and autocorrelation structure.
 
 ## Supported Distributions
 
-DARTA has the capacity to approximate any provided marginal distribution, but in the current version, specific support is provided for the following distributions: - **negative binomial distribution** - **binomial distribution** - **poisson diatribution** - **uniform distribution**
+DARTA has the capacity to approximate any provided discrete marginal distribution, but in the current version, specific support is provided for the following distributions: 
+- **negative binomial distribution** 
+- **binomial distribution** 
+- **poisson diatribution** 
+- **uniform distribution**
 
 ## Implementation
 
@@ -80,6 +84,7 @@ the [men/examples](man/examples) directory contains all currently available exam
 ```
 
 ## Program flow
+This diagram is meant to roughly visualize the program flow od the DARTA package, which can be helpful with tracing errors.
 
 ```mermaid
 graph LR
@@ -89,7 +94,16 @@ B[generate_binomial] -->E
 C[generate_poisson] -->E
 D[generate_uniform] -->E
 E --> F[generate_DARTA]
-
+F --> G[find_r_binary]
+G --> I[get_correlation_bound]
+H --> I
+F --> H[find_r_interpol]
+G --> J[expected_target_product]
+H --> J
+J --> K[integrand_plateau]
+J --> L[integrand_plateau_symmetric]
+F --> M[is_stationary]
+F --> Z[RESULT]
 ```
 
 ## Contact
