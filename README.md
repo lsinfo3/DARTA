@@ -1,9 +1,3 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
-
 # DARTA
 
 The DARTA model allows for the generation of autocorrelated random
