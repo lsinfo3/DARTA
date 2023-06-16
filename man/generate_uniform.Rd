@@ -12,7 +12,8 @@ generate_uniform(
   gamma = 1e-05,
   method = "interpol",
   n_interpol = 20,
-  epsilon = 0.001
+  epsilon = 0.001,
+  use_caching = T
 )
 }
 \arguments{

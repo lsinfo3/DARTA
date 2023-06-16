@@ -88,15 +88,19 @@ find_r_binary <- function(cdf, mean, var, rho, cdf_name_parameterized, epsilon, 
       # search was not successful yet
       search_iteration <- search_iteration+1
       search_r <- (interval[1]+interval[2])/2
-      current <-cache[[search_r]]
-      if(current==-2){ #cache miss
-        current <- get_target_correlation(expected_target_product(cdf = cdf, r = search_r, gamma = gamma), mean=mean,  var=var)
-        if(!is.null(current)){ # valid result
-          cache[[search_r]]<-current
-          saveRDS(cache, file = cache_path)
-        }else{
-          stop(paste("An Error occurred during computation of the target process correlation."))
+      if(use_caching){
+        current <-cache[[search_r]]
+        if(current==-2){ #cache miss
+          current <- get_target_correlation(expected_target_product(cdf = cdf, r = search_r, gamma = gamma), mean=mean,  var=var)
+          if(!is.null(current)){ # valid result
+            cache[[search_r]]<-current
+            saveRDS(cache, file = cache_path)
+          }else{
+            stop(paste("An Error occurred during computation of the target process correlation."))
+          }
         }
+      }else{
+        current <- get_target_correlation(expected_target_product(cdf = cdf, r = search_r, gamma = gamma), mean=mean,  var=var)
       }
       if(print_progress){
         print(paste0("r[",i,"]:", search_r, " || approximation for rho: ", current))

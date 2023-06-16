@@ -1,14 +1,18 @@
 # DARTA
 
-The DARTA model allows for the generation of autocorrelated random number series of desired discrete marginal distribution and autocorrelation structure, i.e. the pearson-autocorrelation can be dictated for any lag. It works by identifying a suitable stationary stochastic base process with marginal standard normal distribution and autocorrelation structure, which is used to generate a time-series following a standard normal distribution. This time-series is then transformed, via the inverse-transform-method, to a time-series with the desired marginal distribution and autocorrelation structure.
+The DARTA model allows for the generation of autocorrelated random number series of any target discrete marginal distribution and target autocorrelation structure, i.e. the pearson correlation coefficient can be dictated for any lag in the stochastic process that the random number series is drawn from. It works by identifying a suitable stationary stochastic base process with marginal standard normal distribution and autocorrelation structure, which is used to generate a time-series following a standard normal distribution. This time-series is then transformed, via the inverse-transform-method, to a time-series with the desired marginal distribution and autocorrelation structure.
 
 ## Supported Distributions
 
-DARTA has the capacity to approximate any provided discrete marginal distribution, but in the current version, specific support is provided for the following distributions: 
-- **negative binomial distribution** 
-- **binomial distribution** 
-- **poisson diatribution** 
-- **uniform distribution**
+DARTA has the capacity to approximate any provided discrete marginal distribution, but in the current version, specific support is provided for the following distributions:
+
+-   **negative binomial distribution**
+
+-   **binomial distribution**
+
+-   **poisson distribution**
+
+-   **uniform distribution**
 
 ## Implementation
 
@@ -54,7 +58,7 @@ the [man/examples](man/examples) directory contains all currently available exam
 ├── LICENSE
 ├── man
 │   ├── examples
-│   │   └── 'generate_nbinomial'_example.R
+│   │   └── generate_nbinomial_example.R
 │   ├── expected_target_product.Rd
 │   ├── find_r_binary.Rd
 │   ├── find_r_interpol.Rd
@@ -84,9 +88,10 @@ the [man/examples](man/examples) directory contains all currently available exam
 ```
 
 ## Program flow
+
 This diagram is meant to roughly visualize the program flow of the DARTA package, which can be helpful when tracing errors.
 
-```mermaid
+``` mermaid
 graph LR
 
 A[generate_nbinomial] -->E[generate_distribution]

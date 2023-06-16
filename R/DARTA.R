@@ -104,7 +104,8 @@ generate_DARTA <- function(n, cdf, inv, mean, var, rho, cdf_name_parameterized, 
                 rho = rho,
                 cdf_name_parameterized = cdf_name_parameterized,
                 epsilon = epsilon,
-                gamma = gamma
+                gamma = gamma,
+                use_caching = use_caching
               )[, 1])
   if(is.null(r)){
     stop("No suitable base process found")

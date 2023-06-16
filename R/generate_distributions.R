@@ -22,14 +22,14 @@
 #'   calculated from equidistant points in the base process autocorrelation
 #'   space, then interpolates a fitting base process autocorrelation from these
 #'   values.
-#' @example man/examples/'generate_nbinomial'_example.R
+#' @example man/examples/generate_nbinomial_example.R
 #' @return Vector containing a time-series of length n with autocorrelation rho
 #'   and Negative Binomial marginal distribution, or NULL if base
 #'   process is not stationary.
 #' @export
 #' @seealso \code{\link{generate_distribution}}
-generate_nbinomial <- function(n, size, prob, rho, gamma = 0.00001, method = "interpol", n_interpol=20, epsilon = 0.001){
-  return(generate_distribution(n= n, rho = rho, distribution_name = "nbinomial", size = size, prob=prob, gamma = gamma, method = method, n_interpol=n_interpol, epsilon = epsilon))
+generate_nbinomial <- function(n, size, prob, rho, gamma = 0.00001, method = "interpol", n_interpol=20, epsilon = 0.001, use_caching = T){
+  return(generate_distribution(n= n, rho = rho, distribution_name = "nbinomial", size = size, prob=prob, gamma = gamma, method = method, n_interpol=n_interpol, epsilon = epsilon, use_caching = use_caching))
 }
 
 #' Generate autocorrelated time-series with marginal binomial distribution.
@@ -57,8 +57,8 @@ generate_nbinomial <- function(n, size, prob, rho, gamma = 0.00001, method = "in
 #'   process is not stationary.
 #' @export
 #' @seealso \code{\link{generate_distribution}}
-generate_binomial <- function(n, size, prob, gamma = 0.00001, method = "interpol", n_interpol=20, rho, epsilon = 0.001){
-  return(generate_distribution(n= n, rho = rho, distribution_name = "binomial", size = size, prob=prob, gamma = gamma, method = method, n_interpol=n_interpol, epsilon = epsilon))
+generate_binomial <- function(n, size, prob, gamma = 0.00001, method = "interpol", n_interpol=20, rho, epsilon = 0.001, use_caching = T){
+  return(generate_distribution(n= n, rho = rho, distribution_name = "binomial", size = size, prob=prob, gamma = gamma, method = method, n_interpol=n_interpol, epsilon = epsilon, use_caching = use_caching))
 }
 
 #' Generate autocorrelated time-series with marginal poisson distribution.
@@ -85,8 +85,8 @@ generate_binomial <- function(n, size, prob, gamma = 0.00001, method = "interpol
 #'   process is not stationary.
 #' @export
 #' @seealso \code{\link{generate_distribution}}
-generate_poisson <- function(n, lambda, rho, gamma = 0.00001, method = "interpol", n_interpol=20, epsilon = 0.001){
-  return(generate_distribution(n= n, rho = rho, distribution_name = "poisson", lambda = lambda, gamma = gamma, method = method, n_interpol=n_interpol, epsilon = epsilon))
+generate_poisson <- function(n, lambda, rho, gamma = 0.00001, method = "interpol", n_interpol=20, epsilon = 0.001, use_caching = T){
+  return(generate_distribution(n= n, rho = rho, distribution_name = "poisson", lambda = lambda, gamma = gamma, method = method, n_interpol=n_interpol, epsilon = epsilon, use_caching = use_caching))
 }
 
 #' Generate autocorrelated time-series with marginal uniform distribution.
@@ -113,8 +113,8 @@ generate_poisson <- function(n, lambda, rho, gamma = 0.00001, method = "interpol
 #'   and Binomial marginal distribution.
 #' @export
 #' @seealso \code{\link{generate_distribution}}
-generate_uniform <- function(n, min, max, rho, gamma = 0.00001, method = "interpol", n_interpol=20, epsilon = 0.001){
-  return(generate_distribution(n= n, rho = rho, distribution_name = "uniform", min = min, max=max, gamma = gamma, method = method, n_interpol=n_interpol, epsilon = epsilon))
+generate_uniform <- function(n, min, max, rho, gamma = 0.00001, method = "interpol", n_interpol=20, epsilon = 0.001, use_caching = T){
+  return(generate_distribution(n= n, rho = rho, distribution_name = "uniform", min = min, max=max, gamma = gamma, method = method, n_interpol=n_interpol, epsilon = epsilon, use_caching = use_caching))
 }
 
 #' Generate time-series of the provided marginal distribution and

@@ -12,7 +12,8 @@ generate_binomial(
   method = "interpol",
   n_interpol = 20,
   rho,
-  epsilon = 0.001
+  epsilon = 0.001,
+  use_caching = T
 )
 }
 \arguments{

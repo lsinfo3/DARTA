@@ -37,7 +37,7 @@ find_r_interpol <- function(cdf, mean, var, rho, gamma, n_interpol, poly_deg = 9
     full_name_parameterized = paste(cdf_name_parameterized, gamma, sep = "_")
     cache_file <- file.path(".interpol_caches", full_name_parameterized)
     bound_cache_file <- file.path(".interpol_caches", paste("correlation_bound", full_name_parameterized, sep = "_"))
-    search_boundaries<-if(file.exists(bound_cache_file)) readRDS(bound_cache_file) else  get_correlation_bound(cdf=cdf, mean=mean, var=var, gamma = gamma)
+    search_boundaries<-if(file.exists(bound_cache_file)) readRDS(bound_cache_file) else get_correlation_bound(cdf=cdf, mean=mean, var=var, gamma = gamma)
     dir.create(".interpol_caches", showWarnings = F)
     saveRDS(object = search_boundaries, file = bound_cache_file)
   }else{
