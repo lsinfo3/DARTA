@@ -1,36 +1,21 @@
 # DARTA
 
-The DARTA model allows for the generation of autocorrelated random
-number series of desired discrete marginal distribution and
-autocorrelation structure, i.e. the pearson-autocorrelation can be
-dictated for any lag. It works by identifying a suitable stationary
-stochastic base process with marginal standard normal distribution and
-autocorrelation structure, which is transformed, via the
-inverse-transform-method, to a target process which exhibits the defined
-criteria, and from which the desired random number series can be
-generated.
+The DARTA model allows for the generation of autocorrelated random number series of desired discrete marginal distribution and autocorrelation structure, i.e. the pearson-autocorrelation can be dictated for any lag. It works by identifying a suitable stationary stochastic base process with marginal standard normal distribution and autocorrelation structure, which is transformed, via the inverse-transform-method, to a target process which exhibits the defined criteria, and from which the desired random number series can be generated.
 
 ## Supported Distributions
 
-DARTA has the capacity to approximate any provided marginal
-distribution, but in the current version, specific support is provided
-for the following distributions: - **negative binomial distribution** -
-**binomial distribution** - **poisson diatribution** - **uniform
-distribution**
+DARTA has the capacity to approximate any provided marginal distribution, but in the current version, specific support is provided for the following distributions: - **negative binomial distribution** - **binomial distribution** - **poisson diatribution** - **uniform distribution**
 
 ## Implementation
 
-The model is implemented using the R programming language. It depends on
-a number of prerequisite packages, which need to be installed in order
-for the DARTA package to function. Following are the required
-packages: 
+The model is implemented using the R programming language. It depends on a number of prerequisite packages, which need to be installed in order for the DARTA package to function. Following are the required packages:
 
-- **VGAM** (for bivariate normal distribution) 
-- **r2r** (hashmap for caching)
-- **polynom** (for generating polynomial equation) 
-- **mvtnorm** (to generate a multivariate normal distribution as starting point for the time-series generation) 
-- **purrr** (to specify distribution parameters via partially applied functions) 
-- **pracma** (for fitting a polynomial when using the 'interpol' method)
+-   **VGAM** (for bivariate normal distribution)
+-   **r2r** (hashmap for caching)
+-   **polynom** (for generating polynomial equation)
+-   **mvtnorm** (to generate a multivariate normal distribution as starting point for the time-series generation)
+-   **purrr** (to specify distribution parameters via partially applied functions)
+-   **pracma** (for fitting a polynomial when using the 'interpol' method)
 
 ## Installation
 
@@ -46,8 +31,7 @@ Then, simply install DARTA directly from the github-repository:
 devtools::install_github("lsinfo3/DARTA")
 ```
 
-You should now be able to use DARTA the same as any other package. Just
-load it into the Environment with the <code>library</code> function:
+You should now be able to use DARTA the same as any other package. Just load it into the Environment with the <code>library</code> function:
 
 ``` r
 library(DARTA)
@@ -55,8 +39,7 @@ library(DARTA)
 
 ## Getting started
 
-the [men/examples](man/examples) directory contains all currently available 
-examples, which can also be found on the corresponding documentation pages.
+the [men/examples](man/examples) directory contains all currently available examples, which can also be found on the corresponding documentation pages.
 
 ## Code structure
 
@@ -96,8 +79,19 @@ examples, which can also be found on the corresponding documentation pages.
 └── README.md
 ```
 
+## Program flow
+
+```mermaid
+graph LR
+
+A[generate_nbinomial] -->E[generate_distribution]
+B[generate_binomial] -->E
+C[generate_poisson] -->E
+D[generate_uniform] -->E
+E --> F[generate_DARTA]
+
+```
+
 ## Contact
 
-If you have any questions, suggestions, or concerns, please contact me
-at
-[david.raunecker\@uni-wuerzburg.de](mailto:david.raunecker@uni-wuerzburg.de){.email}
+If you have any questions, suggestions, or concerns, please contact me at [david.raunecker\@uni-wuerzburg.de](mailto:david.raunecker@uni-wuerzburg.de){.email}
