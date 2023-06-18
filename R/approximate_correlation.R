@@ -75,9 +75,6 @@ expected_target_product <- function(cdf,r, gamma){
     }
     total <- total + s
     k <- k + 1
-    if(cdf(k-1) == cdf(k)){
-      break
-    }
   }
   return(total)
 }
