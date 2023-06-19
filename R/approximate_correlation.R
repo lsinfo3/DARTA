@@ -34,9 +34,11 @@ integrand_plateau <- function(j, k, cdf, r) {
 #'@param r Autocorrelation between two variables of the base process.
 #'@seealso \code{\link{VGAM::pbinorm}}
 integrand_plateau_symmetric<- function(k, cdf, r) {
-  (k^2) * (VGAM::pbinorm(qnorm(cdf(k)), qnorm(cdf(k)), cov12 = r) -
+  val <-(k^2) * (VGAM::pbinorm(qnorm(cdf(k)), qnorm(cdf(k)), cov12 = r) -
              2 * VGAM::pbinorm(qnorm(cdf(k)), qnorm(cdf(k-1)), cov12 = r) +
              VGAM::pbinorm(qnorm(cdf(k-1)), qnorm(cdf(k-1)), cov12 = r))
+  val <- if(val < 0) 0 else val
+  return(val)
 }
 
 #'Compute intermediate result for computation of autocorrelation between two

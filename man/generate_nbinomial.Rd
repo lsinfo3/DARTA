@@ -70,6 +70,8 @@ plot(ecdf(vec))
 # compare to negative bin distribution
 plot(ecdf(rnbinom(1e5,size,prob)))
 
+
+
 }
 \seealso{
 \code{\link{generate_distribution}}

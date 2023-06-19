@@ -105,11 +105,11 @@ find_r_binary <- function(cdf, mean, var, rho, cdf_name_parameterized, epsilon, 
       if(print_progress){
         print(paste0("r[",i,"]:", search_r, " || approximation for rho: ", current))
       }
+      r[i] <- search_r
+      approximation[i] <- current
       if(abs(current - rho[i])<epsilon){
         # approximation successful
         r_found = TRUE
-        r[i] <- search_r
-        approximation[i] <- current
       }else{
         interval <- if(rho[i]<current) c(interval[1], search_r) else c(search_r, interval[2])
       }
