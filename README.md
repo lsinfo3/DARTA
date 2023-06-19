@@ -104,16 +104,17 @@ B[generate_binomial] -->E
 C[generate_poisson] -->E
 D[generate_uniform] -->E
 E --> F[generate_DARTA]
-F --> G[find_r_binary]
+F --> N{method}
+N --> G[find_r_binary]
 G --> I[get_correlation_bound]
 H --> I
-F --> H[find_r_interpol]
+N --> H[find_r_interpol]
 G --> J[expected_target_product]
 H --> J
 J --> K[integrand_plateau]
 J --> L[integrand_plateau_symmetric]
 F --> M[is_stationary]
-F --> Z[RESULT]
+F --> Z(RESULT)
 ```
 
 ## Contact
