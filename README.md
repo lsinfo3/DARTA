@@ -24,6 +24,7 @@ The model is implemented using the R programming language. It depends on a numbe
 -   **mvtnorm** (to generate a multivariate normal distribution as starting point for the time-series generation)
 -   **purrr** (to specify distribution parameters via partially applied functions)
 -   **pracma** (for fitting a polynomial when using the 'interpol' method)
+-   **extraDistr** (for creating discrete uniform distribution)
 
 ## Installation
 
@@ -58,7 +59,11 @@ the [man/examples](man/examples) directory contains all currently available exam
 ├── LICENSE
 ├── man
 │   ├── examples
-│   │   └── generate_nbinomial_example.R
+│   │   ├── caching_example.R
+│   │   ├── generate_binomial_example.R
+│   │   ├── generate_nbinomial_example.R
+│   │   ├── generate_poisson_example.R
+│   │   └── generate_uniform_example.R
 │   ├── expected_target_product.Rd
 │   ├── find_r_binary.Rd
 │   ├── find_r_interpol.Rd
@@ -79,11 +84,11 @@ the [man/examples](man/examples) directory contains all currently available exam
 │   └── is_stationary.Rd
 ├── NAMESPACE
 ├── R
-│   ├── approximate_correlation.R   (Functions to approximate autocorrelation)
-│   ├── DARTA.R                     (Core functionality, time-series generation)
-│   ├── find_r_binary.R             (Find base autocorrelation structure by binary search)
-│   ├── find_r_interpol.R           (Find base autocorrelation structure by interpolation from polynomial)
-│   └── generate_distributions.R    (Accessible functions for predefined CDFs)
+│   ├── approximate_correlation.R (Functions to approximate autocorrelation)
+│   ├── DARTA.R                   (Core functionality, time-series generation)
+│   ├── find_r_binary.R           (Find base autocorrelation structure by binary search)
+│   ├── find_r_interpol.R         (Find base autocorrelation structure by interpolation from polynomial)
+│   └── generate_distributions.R  (Accessible functions for predefined CDFs)
 └── README.md
 ```
 

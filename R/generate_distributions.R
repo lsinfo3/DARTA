@@ -228,8 +228,8 @@ generate_distribution <- function(n, rho, distribution_name = c("nbinomial", "bi
     return(
       generate_DARTA(
         n = n,
-        cdf = purrr::partial(pdunif, min = min, max = max),
-        inv = purrr::partial(qdunif, min = min, max = max),
+        cdf = purrr::partial(extraDistr::pdunif, min = min, max = max),
+        inv = purrr::partial(extraDistr::qdunif, min = min, max = max),
         cdf_name_parameterized = cdf_name_parameterized,
         mean = mean,
         var = var,

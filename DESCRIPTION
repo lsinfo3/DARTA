@@ -15,4 +15,5 @@ Imports:
         polynom,
         mvtnorm,
         purrr,
-        pracma
+        pracma,
+        extraDistr

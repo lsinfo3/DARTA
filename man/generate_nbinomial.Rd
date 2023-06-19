@@ -67,7 +67,7 @@ acf(vec)
 # plot empirical CDF
 plot(ecdf(vec))
 
-# compare to negative bin distribution
+# compare to negative binomial distribution
 plot(ecdf(rnbinom(1e5,size,prob)))
 
 
