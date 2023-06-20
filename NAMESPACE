@@ -2,6 +2,7 @@
 
 export(generate_DARTA)
 export(generate_binomial)
+export(generate_custom_distribution)
 export(generate_distribution)
 export(generate_nbinomial)
 export(generate_poisson)

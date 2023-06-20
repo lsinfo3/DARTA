@@ -11,7 +11,7 @@ generate_uniform(
   rho,
   gamma = 1e-05,
   method = "interpol",
-  n_interpol = 20,
+  n_interpol = 30,
   epsilon = 0.001,
   use_caching = T
 )
@@ -27,7 +27,9 @@ vector of random numbers that is returned.}
 \item{rho}{Autocorrelation structure to be approximated, as a vector of
 \code{numerics}.}
 
-\item{gamma}{Controls accuracy of DARTA's autocorrelation approximation mechanism, lower being more accurate. Defaults to 10^-5.}
+\item{gamma}{Numeric, controls accuracy of DARTA's autocorrelation
+approximation mechanism, lower being more accurate. Defaults to 10^-5.
+product of two random variables of the target process. defaults to 10^-5.}
 
 \item{method}{Defines method for autocorrelation structure approximation.
 'binary' employs a binary search, ending when autocorrelation in target
@@ -37,16 +39,45 @@ calculated from equidistant points in the base process autocorrelation
 space, then interpolates a fitting base process autocorrelation from these
 values.}
 
-\item{epsilon}{Controls acceptable error within which the target
-autocorrelation is to be approximated by the base process when the 'binary' method is used. Defaults to
-0.001.}
+\item{n_interpol}{Natural number, decides how many equidistant points in the
+base process autocorrelation space should be sampled in order to fit a
+polynomial function. Defaults to 30.}
+
+\item{epsilon}{Numeric between 0 and 1, controls acceptable error within
+which the target autocorrelation is to be approximated by the base process
+when the 'binary' method is used. Defaults to 0.001.}
+
+\item{use_caching}{Logical, deciding wether results should be cached, and
+cached results used in the computation. Defaults to TRUE.}
 }
 \value{
 Vector containing a time-series of length n with autocorrelation rho
-and Binomial marginal distribution.
+and uniform marginal distribution.
 }
 \description{
 Generate autocorrelated time-series with marginal uniform distribution.
+}
+\examples{
+library(DARTA)
+# define distribution parameters
+min <- 50
+max <- 150
+
+# define autocorrelation structure as a vector, starting with lag 1:
+rho <- c(0.3,0.2,0.3,0.2,0.3,0.2)
+
+# generate sample
+vec <- generate_uniform(n = 1e5, min = min, max = max, rho=rho, method = "interpol", use_caching = F)
+
+# plot autocorrelation
+acf(vec)
+
+# plot empirical CDF
+plot(ecdf(vec))
+
+# compare to uniform distribution
+plot(ecdf(runif(1e5,min, max)))
+
 }
 \seealso{
 \code{\link{generate_distribution}}

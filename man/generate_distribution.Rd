@@ -8,11 +8,11 @@ autocorrelation structure.}
 generate_distribution(
   n,
   rho,
-  distribution_name = c("nbinomial", "binomial", "poisson", "uniform"),
+  distribution_name = c("nbinomial", "binomial", "poisson", "uniform", "custom"),
   gamma = 1e-05,
   method = c("interpol", "binary"),
   epsilon = 0.001,
-  n_interpol = 20,
+  n_interpol = 30,
   use_caching = T,
   ...
 )
@@ -27,12 +27,28 @@ numerics.}
 \item{distribution_name}{Name of the Distribution to be generated. Currently
 supported are "nbinomial", "binomial", "poisson", and "uniform".}
 
-\item{gamma}{Threshold for computation of the expected value of the
+\item{gamma}{Numeric, controls accuracy of DARTA's autocorrelation
+approximation mechanism, lower being more accurate. Defaults to 10^-5.
 product of two random variables of the target process. defaults to 10^-5.}
 
-\item{epsilon}{Controls acceptable error within which the target
-autocorrelation is to be approximated by the base process. Defaults to
-0.001.}
+\item{method}{Defines method for autocorrelation structure approximation.
+'binary' employs a binary search, ending when autocorrelation in target
+process is within error margin 'epsilon' of desired autocorrelation.
+'interpol' fits a function through 'n_interpol' autocorrelation values
+calculated from equidistant points in the base process autocorrelation
+space, then interpolates a fitting base process autocorrelation from these
+values.}
+
+\item{epsilon}{Numeric between 0 and 1, controls acceptable error within
+which the target autocorrelation is to be approximated by the base process
+when the 'binary' method is used. Defaults to 0.001.}
+
+\item{n_interpol}{Natural number, decides how many equidistant points in the
+base process autocorrelation space should be sampled in order to fit a
+polynomial function. Defaults to 30.}
+
+\item{use_caching}{Logical, deciding wether results should be cached, and
+cached results used in the computation.}
 }
 \value{
 Vector containing a time-series of length n with autocorrelation rho
@@ -44,7 +60,7 @@ Generate time-series of the provided marginal distribution and
 autocorrelation structure.
 }
 \examples{
-generate_DARTA(n = 10000, rho = c(0.7,0.5,0.3), distribution_name = "nbinomial", param1 = 10, param2 = 0.6)
+generate_DARTA(n = 10000, rho = c(0.5,0.4,0.3), distribution_name = "nbinomial", size = 10, prob = 0.6, method = "interpol")
 }
 \seealso{
 \code{\link{generate_DARTA}}
