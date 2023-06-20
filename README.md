@@ -6,25 +6,15 @@ The DARTA model allows for the generation of autocorrelated random number series
 
 DARTA has the capacity to approximate any provided discrete marginal distribution, but in the current version, specific support is provided for the following distributions:
 
--   **negative binomial distribution**
+-   **negative binomial distribution**, see [man/examples/generate_nbinomial_example.R](man/examples/generate_nbinomial_example.R).
 
--   **binomial distribution**
+-   **binomial distribution**, see [man/examples/generate_binomial_example.R](man/examples/generate_binomial_example.R).
 
--   **poisson distribution**
+-   **poisson distribution**, see [man/examples/generate_poisson_example.R](man/examples/generate_poisson_example.R).
 
--   **uniform distribution**
+-   **uniform distribution**, see [man/examples/generate_uniform_example.R](man/examples/generate_uniform_example.R).
 
-## Implementation
-
-The model is implemented using the R programming language. It depends on a number of prerequisite packages, which need to be installed in order for the DARTA package to function. Following are the required packages:
-
--   **VGAM** (for bivariate normal distribution)
--   **r2r** (hashmap for caching)
--   **polynom** (for generating polynomial equation)
--   **mvtnorm** (to generate a multivariate normal distribution as starting point for the time-series generation)
--   **purrr** (to specify distribution parameters via partially applied functions)
--   **pracma** (for fitting a polynomial when using the 'interpol' method)
--   **extraDistr** (for creating discrete uniform distribution)
+Furthermore, it is possible to define a custom distribution, see [man/examples/generate_custom_distribution_example.R](man/examples/generate_custom_distribution_example.R).
 
 ## Installation
 
@@ -50,6 +40,18 @@ library(DARTA)
 
 the [man/examples](man/examples) directory contains all currently available examples, which can also be found on the corresponding documentation pages.
 
+## Implementation
+
+The model is implemented using the R programming language. It depends on a number of prerequisite packages, which need to be installed in order for the DARTA package to function. Following are the required packages:
+
+-   **VGAM** (for bivariate normal distribution)
+-   **r2r** (hashmap for caching)
+-   **polynom** (for generating polynomial equation)
+-   **mvtnorm** (to generate a multivariate normal distribution as starting point for the time-series generation)
+-   **purrr** (to specify distribution parameters via partially applied functions)
+-   **pracma** (for fitting a polynomial when using the 'interpol' method)
+-   **extraDistr** (for creating discrete uniform distribution)
+
 ## Code structure
 
 ``` bash
@@ -61,6 +63,7 @@ the [man/examples](man/examples) directory contains all currently available exam
 │   ├── examples
 │   │   ├── caching_example.R
 │   │   ├── generate_binomial_example.R
+│   │   ├── generate_custom_distribution_example.R
 │   │   ├── generate_nbinomial_example.R
 │   │   ├── generate_poisson_example.R
 │   │   └── generate_uniform_example.R
@@ -68,6 +71,7 @@ the [man/examples](man/examples) directory contains all currently available exam
 │   ├── find_r_binary.Rd
 │   ├── find_r_interpol.Rd
 │   ├── generate_binomial.Rd
+│   ├── generate_custom_distribution.Rd
 │   ├── generate_DARTA.Rd
 │   ├── generate_distribution.Rd
 │   ├── generate_nbinomial.Rd
@@ -99,10 +103,11 @@ This diagram is meant to roughly visualize the program flow of the DARTA package
 ``` mermaid
 graph LR
 
-A[generate_nbinomial] -->E[generate_distribution]
-B[generate_binomial] -->E
-C[generate_poisson] -->E
-D[generate_uniform] -->E
+A[generate_nbinomial] --> E[generate_distribution]
+B[generate_binomial] --> E
+C[generate_poisson] --> E
+D[generate_uniform] --> E
+O[generate_custom_distribution] --> E
 E --> F[generate_DARTA]
 F --> N{method}
 N --> G[find_r_binary]
