@@ -25,11 +25,11 @@ vector of random numbers that is returned.}
 numerics.}
 
 \item{distribution_name}{Name of the Distribution to be generated. Currently
-supported are "nbinomial", "binomial", "poisson", and "uniform".}
+supported are "nbinomial", "binomial", "poisson", "uniform", and "custom".}
 
 \item{gamma}{Numeric, controls accuracy of DARTA's autocorrelation
 approximation mechanism, lower being more accurate. Defaults to 10^-5.
-product of two random variables of the target process. defaults to 10^-5.}
+product of two random variables of the target process.}
 
 \item{method}{Defines method for autocorrelation structure approximation.
 'binary' employs a binary search, ending when autocorrelation in target
@@ -47,7 +47,7 @@ when the 'binary' method is used. Defaults to 0.001.}
 base process autocorrelation space should be sampled in order to fit a
 polynomial function. Defaults to 30.}
 
-\item{use_caching}{Logical, deciding wether results should be cached, and
+\item{use_caching}{Logical, deciding whether results should be cached, and
 cached results used in the computation.}
 }
 \value{

@@ -24,13 +24,17 @@ generate_custom_distribution(
 \item{n}{length of time-series to be generated, i.e., total size of the
 vector of random numbers that is returned.}
 
-\item{cdf}{Cumulative distribution function of the custom distribion}
+\item{cdf}{Cumulative distribution function of the custom distribution}
 
-\item{inv}{Inverse cumulative distribution function, i.e. qunatile function, of cumstom distribution}
+\item{inv}{Inverse cumulative distribution function, i.e. quantile function,
+of custom distribution}
 
 \item{mean}{Mean of Custom distribution}
 
-\item{name}{Name of the custom distribution, used for caching. Should be chosen uniquely for each cdf, but different parameterizations can be cached for the same name.}
+\item{name}{Name of the custom distribution, used for caching. Should be
+chosen uniquely for each cdf, but different parameterizations of the
+distribution can be cached for the same name, as long as they are passed in
+as function arguments.}
 
 \item{var}{Variance of custom distribution}
 
@@ -38,14 +42,13 @@ vector of random numbers that is returned.}
 \code{numerics}.}
 
 \item{gamma}{Numeric, controls accuracy of DARTA's autocorrelation
-approximation mechanism, lower being more accurate. Defaults to 10^-5.
-product of two random variables of the target process. defaults to 10^-5.}
+approximation mechanism, lower being more accurate. Defaults to 10^-5.}
 
 \item{method}{Defines method for autocorrelation structure approximation.
 'binary' employs a binary search, ending when autocorrelation in target
 process is within error margin 'epsilon' of desired autocorrelation.
 'interpol' fits a function through 'n_interpol' autocorrelation values
-calculated fdevrom equidistant points in the base process autocorrelation
+calculated from equidistant points in the base process autocorrelation
 space, then interpolates a fitting base process autocorrelation from these
 values.}
 
@@ -59,6 +62,11 @@ when the 'binary' method is used. Defaults to 0.001.}
 
 \item{use_caching}{Logical, deciding whether results should be cached, and
 cached results used in the computation. Defaults to TRUE.}
+
+\item{...}{Additional distribution arguments. All additional arguments will
+be passed to the cdf and inv functions to fully parameterize them. They are
+also used to parameterize the name of the distribution, so each
+parameterization of a distribution has a unique cache.}
 }
 \value{
 Vector containing a time-series of length n with autocorrelation rho
@@ -69,15 +77,45 @@ Generate time-series of a custom distribution
 }
 \examples{
 library(DARTA)
-# define distribution parameters
-min <- 50
-max <- 150
+library(purrr)
 
-# define autocorrelation structure as a vector, starting with lag 1:
-rho <- c(0.3,0.2,0.3,0.2,0.3,0.2)
+# In this example, we are going to create autocorrelated values from a hypergeometric distribution.
+# To do this, we need a fitting cumulative distribution function (cdf), quantile function (inv),
+# and the distributions mean and variance
 
-# generate sample
-vec <- generate_uniform(n = 1e5, min = min, max = max, rho=rho, method = "interpol", use_caching = F)
+# Define Function parameters
+n <-30
+m <- 30
+k <- 30
+
+# Here, we pre-set the n parameter early, as it clashes with the n parameter in the generate_custom_distribution function
+cdf <- partial(phyper, n = n)
+inv <- partial(qhyper, n = n)
+
+# Calculate mean and variance for the Hypergeometric distribution, see also https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Hypergeometric.html
+mean <- k*m/(m+n)
+var <- k*m/(m+n)*(1-m/(m+n))*(m+n-k)/(m+n-1)
+
+# Atutocorrelation structure
+rho <- c(0.5,0.3,0.2,0.15)
+
+# generate sample.
+# We pass the parameters 'm' and 'k' as function arguments. We could have also set them as we did with 'n' above, but when they are passed into the function, caching will be able to discern between different parameterizations of the same distribution
+# The 'name' argument is only used when caching is enabled. Make sure to use different names for different custom distributions, or the wrong cache may be used.
+vec <-
+  generate_custom_distribution(
+    n = 1e6,
+    name = paste("hypergeometric", n, sep = "-"),
+    cdf = cdf,
+    inv = inv,
+    mean = mean,
+    var = var,
+    m = m,
+    k = k,
+    rho = rho,
+    method = "interpol",
+    use_caching = T
+  )
 
 # plot autocorrelation
 acf(vec)
@@ -85,8 +123,8 @@ acf(vec)
 # plot empirical CDF
 plot(ecdf(vec))
 
-# compare to uniform distribution
-plot(ecdf(runif(1e5,min, max)))
+# compare to binomial distribution
+plot(ecdf(rhyper(1e5,n =n, m =m, k = k)))
 
 }
 \seealso{

@@ -20,16 +20,15 @@ generate_binomial(
 \item{n}{length of time-series to be generated, i.e., total size of the
 vector of random numbers that is returned.}
 
-\item{size}{Size parameter of the Binomial distribution.}
+\item{size}{Size parameter of the binomial distribution.}
 
-\item{prob}{Probability parameter of the Binomial distribution.}
+\item{prob}{Probability parameter of the binomial distribution.}
 
 \item{rho}{Autocorrelation structure to be approximated, as a vector of
 \code{numerics}.}
 
 \item{gamma}{Numeric, controls accuracy of DARTA's autocorrelation
-approximation mechanism, lower being more accurate. Defaults to 10^-5.
-product of two random variables of the target process. defaults to 10^-5.}
+approximation mechanism, lower being more accurate. Defaults to 10^-5.}
 
 \item{method}{Defines method for autocorrelation structure approximation.
 'binary' employs a binary search, ending when autocorrelation in target
@@ -47,12 +46,12 @@ polynomial function. Defaults to 30.}
 which the target autocorrelation is to be approximated by the base process
 when the 'binary' method is used. Defaults to 0.001.}
 
-\item{use_caching}{Logical, deciding wether results should be cached, and
+\item{use_caching}{Logical, deciding whether results should be cached, and
 cached results used in the computation. Defaults to TRUE.}
 }
 \value{
 Vector containing a time-series of length n with autocorrelation rho
-and Binomial marginal distribution, or NULL if base process is not
+and binomial marginal distribution, or NULL if base process is not
 stationary.
 }
 \description{

@@ -24,7 +24,20 @@ rho <- c(0.5,0.3,0.2,0.15)
 # generate sample.
 # We pass the parameters 'm' and 'k' as function arguments. We could have also set them as we did with 'n' above, but when they are passed into the function, caching will be able to discern between different parameterizations of the same distribution
 # The 'name' argument is only used when caching is enabled. Make sure to use different names for different custom distributions, or the wrong cache may be used.
-vec <- generate_custom_distribution(n = 1e6, name = paste("hypergeometric", n, sep = "-"), cdf = cdf, inv = inv, mean = mean, var = var, m = m, k = k, rho=rho, method = "interpol", use_caching = F)
+vec <-
+  generate_custom_distribution(
+    n = 1e6,
+    name = paste("hypergeometric", n, sep = "-"),
+    cdf = cdf,
+    inv = inv,
+    mean = mean,
+    var = var,
+    m = m,
+    k = k,
+    rho = rho,
+    method = "interpol",
+    use_caching = T
+  )
 
 # plot autocorrelation
 acf(vec)

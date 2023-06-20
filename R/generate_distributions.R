@@ -8,13 +8,12 @@
 #'
 #' @param n length of time-series to be generated, i.e., total size of the
 #'   vector of random numbers that is returned.
-#' @param size Size parameter of the Negative Binomial distribution.
-#' @param prob Probability parameter of the Negative Binomial distribution.
+#' @param size Size parameter of the negative binomial distribution.
+#' @param prob Probability parameter of the negative binomial distribution.
 #' @param rho Autocorrelation structure to be approximated, as a vector of
 #'   \code{numerics}.
 #' @param gamma Numeric, controls accuracy of DARTA's autocorrelation
 #'   approximation mechanism, lower being more accurate. Defaults to 10^-5.
-#'   product of two random variables of the target process. defaults to 10^-5.
 #' @param method Defines method for autocorrelation structure approximation.
 #'   'binary' employs a binary search, ending when autocorrelation in target
 #'   process is within error margin 'epsilon' of desired autocorrelation.
@@ -28,7 +27,7 @@
 #' @param epsilon Numeric between 0 and 1, controls acceptable error within
 #'   which the target autocorrelation is to be approximated by the base process
 #'   when the 'binary' method is used. Defaults to 0.001.
-#' @param use_caching Logical, deciding wether results should be cached, and
+#' @param use_caching Logical, deciding whether results should be cached, and
 #'   cached results used in the computation.
 #' @example man/examples/generate_nbinomial_example.R
 #' @return Vector containing a time-series of length n with autocorrelation rho
@@ -44,13 +43,12 @@ generate_nbinomial <- function(n, size, prob, rho, gamma = 0.00001, method = "in
 #'
 #' @param n length of time-series to be generated, i.e., total size of the
 #'   vector of random numbers that is returned.
-#' @param size Size parameter of the Binomial distribution.
-#' @param prob Probability parameter of the Binomial distribution.
+#' @param size Size parameter of the binomial distribution.
+#' @param prob Probability parameter of the binomial distribution.
 #' @param rho Autocorrelation structure to be approximated, as a vector of
 #'   \code{numerics}.
 #' @param gamma Numeric, controls accuracy of DARTA's autocorrelation
 #'   approximation mechanism, lower being more accurate. Defaults to 10^-5.
-#'   product of two random variables of the target process. defaults to 10^-5.
 #' @param method Defines method for autocorrelation structure approximation.
 #'   'binary' employs a binary search, ending when autocorrelation in target
 #'   process is within error margin 'epsilon' of desired autocorrelation.
@@ -64,11 +62,11 @@ generate_nbinomial <- function(n, size, prob, rho, gamma = 0.00001, method = "in
 #' @param epsilon Numeric between 0 and 1, controls acceptable error within
 #'   which the target autocorrelation is to be approximated by the base process
 #'   when the 'binary' method is used. Defaults to 0.001.
-#' @param use_caching Logical, deciding wether results should be cached, and
+#' @param use_caching Logical, deciding whether results should be cached, and
 #'   cached results used in the computation. Defaults to TRUE.
 #' @example man/examples/generate_binomial_example.R
 #' @return Vector containing a time-series of length n with autocorrelation rho
-#'   and Binomial marginal distribution, or NULL if base process is not
+#'   and binomial marginal distribution, or NULL if base process is not
 #'   stationary.
 #' @export
 #' @seealso \code{\link{generate_distribution}}
@@ -85,7 +83,6 @@ generate_binomial <- function(n, size, prob, rho, gamma = 0.00001, method = "int
 #'   \code{numerics}.
 #' @param gamma Numeric, controls accuracy of DARTA's autocorrelation
 #'   approximation mechanism, lower being more accurate. Defaults to 10^-5.
-#'   product of two random variables of the target process. defaults to 10^-5.
 #' @param method Defines method for autocorrelation structure approximation.
 #'   'binary' employs a binary search, ending when autocorrelation in target
 #'   process is within error margin 'epsilon' of desired autocorrelation.
@@ -99,7 +96,7 @@ generate_binomial <- function(n, size, prob, rho, gamma = 0.00001, method = "int
 #' @param epsilon Numeric between 0 and 1, controls acceptable error within
 #'   which the target autocorrelation is to be approximated by the base process
 #'   when the 'binary' method is used. Defaults to 0.001.
-#' @param use_caching Logical, deciding wether results should be cached, and
+#' @param use_caching Logical, deciding whether results should be cached, and
 #'   cached results used in the computation. Defaults to TRUE.
 #' @example man/examples/generate_poisson_example.R
 #' @return Vector containing a time-series of length n with autocorrelation rho
@@ -115,13 +112,12 @@ generate_poisson <- function(n, lambda, rho, gamma = 0.00001, method = "interpol
 #'
 #' @param n length of time-series to be generated, i.e., total size of the
 #'   vector of random numbers that is returned.
-#' @param min min parameter of the Binomial distribution.
-#' @param max max parameter of the Binomial distribution.
+#' @param min min parameter of the binomial distribution.
+#' @param max max parameter of the binomial distribution.
 #' @param rho Autocorrelation structure to be approximated, as a vector of
 #'   \code{numerics}.
 #' @param gamma Numeric, controls accuracy of DARTA's autocorrelation
 #'   approximation mechanism, lower being more accurate. Defaults to 10^-5.
-#'   product of two random variables of the target process. defaults to 10^-5.
 #' @param method Defines method for autocorrelation structure approximation.
 #'   'binary' employs a binary search, ending when autocorrelation in target
 #'   process is within error margin 'epsilon' of desired autocorrelation.
@@ -135,7 +131,7 @@ generate_poisson <- function(n, lambda, rho, gamma = 0.00001, method = "interpol
 #' @param epsilon Numeric between 0 and 1, controls acceptable error within
 #'   which the target autocorrelation is to be approximated by the base process
 #'   when the 'binary' method is used. Defaults to 0.001.
-#' @param use_caching Logical, deciding wether results should be cached, and
+#' @param use_caching Logical, deciding whether results should be cached, and
 #'   cached results used in the computation. Defaults to TRUE.
 #' @example man/examples/generate_uniform_example.R
 #' @return Vector containing a time-series of length n with autocorrelation rho
@@ -150,21 +146,28 @@ generate_uniform <- function(n, min, max, rho, gamma = 0.00001, method = "interp
 #'
 #' @param n length of time-series to be generated, i.e., total size of the
 #'   vector of random numbers that is returned.
-#' @param name Name of the custom distribution, used for caching. Should be chosen uniquely for each cdf, but different parameterizations can be cached for the same name.
-#' @param cdf Cumulative distribution function of the custom distribion
-#' @param inv Inverse cumulative distribution function, i.e. qunatile function, of cumstom distribution
+#' @param name Name of the custom distribution, used for caching. Should be
+#'   chosen uniquely for each cdf, but different parameterizations of the
+#'   distribution can be cached for the same name, as long as they are passed in
+#'   as function arguments.
+#' @param cdf Cumulative distribution function of the custom distribution
+#' @param inv Inverse cumulative distribution function, i.e. quantile function,
+#'   of custom distribution
+#' @param ... Additional distribution arguments. All additional arguments will
+#'   be passed to the cdf and inv functions to fully parameterize them. They are
+#'   also used to parameterize the name of the distribution, so each
+#'   parameterization of a distribution has a unique cache.
 #' @param mean Mean of Custom distribution
 #' @param var Variance of custom distribution
 #' @param rho Autocorrelation structure to be approximated, as a vector of
 #'   \code{numerics}.
 #' @param gamma Numeric, controls accuracy of DARTA's autocorrelation
 #'   approximation mechanism, lower being more accurate. Defaults to 10^-5.
-#'   product of two random variables of the target process. defaults to 10^-5.
 #' @param method Defines method for autocorrelation structure approximation.
 #'   'binary' employs a binary search, ending when autocorrelation in target
 #'   process is within error margin 'epsilon' of desired autocorrelation.
 #'   'interpol' fits a function through 'n_interpol' autocorrelation values
-#'   calculated fdevrom equidistant points in the base process autocorrelation
+#'   calculated from equidistant points in the base process autocorrelation
 #'   space, then interpolates a fitting base process autocorrelation from these
 #'   values.
 #' @param n_interpol Natural number, decides how many equidistant points in the
@@ -175,7 +178,7 @@ generate_uniform <- function(n, min, max, rho, gamma = 0.00001, method = "interp
 #'   when the 'binary' method is used. Defaults to 0.001.
 #' @param use_caching Logical, deciding whether results should be cached, and
 #'   cached results used in the computation. Defaults to TRUE.
-#' @example man/examples/generate_uniform_example.R
+#' @example man/examples/generate_custom_distribution_example.R
 #' @return Vector containing a time-series of length n with autocorrelation rho
 #'   and cumstom marginal distribution.
 #' @export
@@ -209,10 +212,10 @@ generate_custom_distribution <-
 #' @param rho Autocorrelation structure to be approximated, as a vector of
 #'   numerics.
 #' @param distribution_name Name of the Distribution to be generated. Currently
-#'   supported are "nbinomial", "binomial", "poisson", and "uniform".
+#'   supported are "nbinomial", "binomial", "poisson", "uniform", and "custom".
 #' @param gamma Numeric, controls accuracy of DARTA's autocorrelation
 #'   approximation mechanism, lower being more accurate. Defaults to 10^-5.
-#'   product of two random variables of the target process. defaults to 10^-5.
+#'   product of two random variables of the target process.
 #' @param method Defines method for autocorrelation structure approximation.
 #'   'binary' employs a binary search, ending when autocorrelation in target
 #'   process is within error margin 'epsilon' of desired autocorrelation.
@@ -226,7 +229,7 @@ generate_custom_distribution <-
 #' @param epsilon Numeric between 0 and 1, controls acceptable error within
 #'   which the target autocorrelation is to be approximated by the base process
 #'   when the 'binary' method is used. Defaults to 0.001.
-#' @param use_caching Logical, deciding wether results should be cached, and
+#' @param use_caching Logical, deciding whether results should be cached, and
 #'   cached results used in the computation.
 #' @return Vector containing a time-series of length n with autocorrelation rho
 #'   and marginal distribution defined by distribution_name, or NULL if base
@@ -358,7 +361,7 @@ generate_distribution <- function(n, rho, distribution_name = c("nbinomial", "bi
 
     # filter non distribution params
     dstr_params <- params[names(params) %in% c("cdf", "inv", "mean", "var", "name") == FALSE]
-    cdf_name_parameterized <- if(use_caching) paste(name, paste(dstr_params, collapse = "-"), sep ="_") else "custom"
+    cdf_name_parameterized <- if(use_caching) paste(name, paste(dstr_params, collapse = "-"), sep ="-") else "custom"
 
     if(length(dstr_params)>0){
       # set params for distribution functions
