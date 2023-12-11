@@ -40,7 +40,7 @@ library(DARTA)
 
 the [man/examples](man/examples) directory contains all currently available examples, which can also be found on the corresponding documentation pages.
 
-## Implementation
+## Dependencies
 
 The model is implemented using the R programming language. It depends on a number of prerequisite packages, which need to be installed in order for the DARTA package to function. Following are the required packages:
 
