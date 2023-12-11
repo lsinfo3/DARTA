@@ -318,7 +318,7 @@ generate_distribution <- function(n, rho, distribution_name = c("nbinomial", "bi
     )
   }
   if(distribution_name == "uniform"){
-    stopifnot("Please provide 'min' and 'max' arguments for nbinomial distribution as additional function arguments" = ("cdf" %in% names(params) & "cdf" %in% names(params)))
+    stopifnot("Please provide 'min' and 'max' arguments for nbinomial uniform as additional function arguments" = ("max" %in% names(params) & "min" %in% names(params)))
     min <- params$min
     max <- params$max
     stopifnot("Please provide valid min for uniform distribution" = is.numeric(min))

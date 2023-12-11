@@ -30,7 +30,7 @@ is_stationary <- function(alpha){
   roots <- solve(polynom::polynomial(c(1, -alpha)))
   roots <- abs(roots)
   is_stationary <- TRUE
-  if(sum(roots < 1)){
+  if(sum(roots <= 1)){
     is_stationary <- FALSE
   }
   return(is_stationary)
